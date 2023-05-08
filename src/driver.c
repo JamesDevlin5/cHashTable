@@ -4,7 +4,7 @@
 #include "tbl.h"
 
 int main(void) {
-    struct hash_tbl *table = new();
+    struct hash_tbl *table = new ();
 
     /* --- Ensure the empty table doesn't fail any operations --- */
     assert(is_empty(table));
@@ -40,8 +40,16 @@ int main(void) {
     assert(*get(table, "four") == 4);
     assert(*get(table, "five") == 5);
 
+    put(table, "one", 3);
+    put(table, "two", -2);
+
+    assert(contains_item(table, "one", 3));
+    assert(!contains_item(table, "one", 1));
+    assert(contains_item(table, "two", -2));
+    assert(!contains_item(table, "two", 2));
+
     assert(!rm(table, "one", 2));
-    assert(!rm(table, "one", 3));
+    assert(!rm(table, "one", 30));
     assert(!rm(table, "one", 4));
     assert(!rm(table, "one", 5));
     assert(!rm(table, "one", 6));
@@ -54,7 +62,7 @@ int main(void) {
 
     assert(!contains_item(table, "one", 1));
     assert(!contains_item(table, "two", 1));
-    assert(contains_item(table, "two", 2));
+    assert(contains_item(table, "two", -2));
     assert(contains_item(table, "three", 3));
     assert(contains_item(table, "four", 4));
     assert(!contains_item(table, "five", 1));

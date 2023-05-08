@@ -88,16 +88,22 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
  * Places new nodes at the beginning of the list
  */
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    // tbl_val *lookup_val = get(table, )
-    // TODO: check to see if the key is already in the table?
-    struct list_node *node = malloc(sizeof(struct list_node));
-    /* Creates a copy of the key to store */
-    tbl_key new_key = malloc(sizeof(char) * (strlen(key) + 1));
-    strcpy(new_key, key);
-    node->key = new_key;
-    node->val = val;
-    node->next = table->head;
-    table->head = node;
+    // If key is already in list, update that value
+    tbl_val *lookup_val = get(table, key);
+    if (lookup_val) {
+        *lookup_val = val;
+    } else {
+        // Otherwise make a new node to store the information
+        struct list_node *node = malloc(sizeof(struct list_node));
+        // Creates a copy of the key to store
+        tbl_key new_key = malloc(sizeof(char) * (strlen(key) + 1));
+        strcpy(new_key, key);
+        node->key = new_key;
+        node->val = val;
+        // Prepends new node
+        node->next = table->head;
+        table->head = node;
+    }
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
