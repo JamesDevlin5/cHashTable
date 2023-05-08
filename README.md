@@ -16,6 +16,8 @@ Insertion is *not* very quick; the item is pre-pended to the list but the list i
 searched to see if the key is already present. All searches must occur in linear time,
 so these are generally slow.
 
+> The `put` operation first executes a `get` operation
+
 ## TODO
 
 - Make a linked-list iterator

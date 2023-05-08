@@ -106,18 +106,23 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
     }
 }
 
-static bool key_pred(tbl_key search_key, tbl_val search_val, tbl_key cmp_key, tbl_val cmp_val) {
+static bool key_pred(tbl_key search_key, tbl_val search_val,
+                     tbl_key cmp_key, tbl_val cmp_val) {
     return strcmp(search_key, cmp_key) == 0;
 }
 
-static bool item_pred(tbl_key search_key, tbl_val search_val, tbl_key cmp_key, tbl_val cmp_val) {
+static bool item_pred(tbl_key search_key, tbl_val search_val,
+                      tbl_key cmp_key, tbl_val cmp_val) {
     return strcmp(search_key, cmp_key) == 0 && search_val == cmp_val;
 }
 
-static tbl_val *remove(struct hash_tbl *table, tbl_key search_key, tbl_val search_val, bool (*pred)(tbl_key, tbl_val, tbl_key, tbl_val)) {
+static tbl_val *remove(struct hash_tbl *table,
+                       tbl_key search_key, tbl_val search_val,
+                       bool (*pred)(tbl_key, tbl_val, tbl_key, tbl_val)) {
     if (is_empty(table)) {
         return NULL;
-    } else if (pred(search_key, search_val, table->head->key, table->head->val)) {
+    } else if (pred(search_key, search_val, table->head->key,
+                    table->head->val)) {
         // If it's the first key
         struct list_node *node = table->head;
         table->head = node->next;
