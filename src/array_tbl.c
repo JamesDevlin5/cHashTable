@@ -43,7 +43,24 @@ size_t size(struct hash_tbl *table) {
 }
 
 void clear(struct hash_tbl *table) {
-    /* TODO */
+    // if (table->n_items == 0) return;
+    // Free all individual buckets
+    for (size_t i = 0; i < table->n_buckets; i++) {
+        struct bucket *bucket = (*table->buckets)[i];
+        if (bucket) {
+            free(bucket->key);
+            free(bucket);
+        }
+    }
+    // Free the table of buckets
+    free(*table->buckets);
+    // Just make a new table and take its contents
+    struct hash_tbl *new_tbl = new ();
+    table->buckets = new_tbl->buckets;
+    table->n_buckets = new_tbl->n_buckets;
+    table->n_items = new_tbl->n_items;
+    // And clean up the new table we just created (but not its contents we took)
+    free(new_tbl);
 }
 
 bool contains_key(struct hash_tbl *table, tbl_key key) {
