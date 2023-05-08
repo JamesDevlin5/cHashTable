@@ -1,7 +1,8 @@
 #include "tbl.h"
 #include "utils.h"
 
-static const size_t INIT_SIZE = 16;
+static const size_t INIT_SIZE = 2;
+static const float LOAD_AMT = 0.75f;
 
 struct bucket {
     tbl_key key;
@@ -96,12 +97,37 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
     return NULL;
 }
 
+static bool should_grow(struct hash_tbl *table) {
+    return (table->n_items / (float)table->n_buckets) >= LOAD_AMT;
+}
+
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
     // Check if key already present
     tbl_val *lookup_val = get(table, key);
     if (lookup_val) {
         *lookup_val = val;
     } else {
+        table->n_items += 1;
+        if (should_grow(table)) {
+            // Grow the table
+            size_t new_size = table->n_buckets * 2;
+            // Copy all current values into resized table
+            struct hash_tbl *new_tbl = with_size(new_size);
+            for (size_t i = 0; i < table->n_buckets; i++) {
+                struct bucket *curr_bucket = (*table->buckets)[i];
+                if (curr_bucket) {
+                    put(new_tbl, curr_bucket->key, curr_bucket->val);
+                    free(curr_bucket->key);
+                    free(curr_bucket);
+                }
+            }
+            free(table->buckets);
+            table->buckets = new_tbl->buckets;
+            table->n_buckets = new_tbl->n_buckets;
+            // Account for new item
+            table->n_items = new_tbl->n_items + 1;
+            free(new_tbl);
+        }
         // Create new bucket
         struct bucket *new_bucket = malloc(sizeof(struct bucket));
         new_bucket->key = malloc(sizeof(char) * (strlen(key) + 1));
@@ -113,7 +139,6 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
             // Check if null
             if (!(*table->buckets)[curr_idx]) {
                 (*table->buckets)[curr_idx] = new_bucket;
-                table->n_items += 1;
                 // Exit loop
                 return;
             }
@@ -122,11 +147,45 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    // TODO
+    size_t start_idx = hash(key);
+    for (size_t idx = start_idx; idx < start_idx + table->n_buckets; idx++) {
+        size_t curr_idx = idx % table->n_buckets;
+        struct bucket *curr_bucket = (*table->buckets)[curr_idx];
+        if (curr_bucket) {
+            if (strcmp(curr_bucket->key, key) == 0) {
+                // Found the key
+                tbl_val *val = malloc(sizeof(tbl_val));
+                *val = curr_bucket->val;
+                free(curr_bucket->key);
+                free(curr_bucket);
+                (*table->buckets)[curr_idx] = NULL;
+                table->n_items -= 1;
+                // TODO: check if we should shrink
+                return val;
+            }
+        }
+    }
+    return NULL;
 }
 
 bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    // TODO
+    size_t start_idx = hash(key);
+    for (size_t idx = start_idx; idx < start_idx + table->n_buckets; idx++) {
+        size_t curr_idx = idx % table->n_buckets;
+        struct bucket *curr_bucket = (*table->buckets)[curr_idx];
+        if (curr_bucket) {
+            if (strcmp(curr_bucket->key, key) == 0 && val == curr_bucket->val) {
+                // Found the pair
+                free(curr_bucket->key);
+                free(curr_bucket);
+                (*table->buckets)[curr_idx] = NULL;
+                table->n_items -= 1;
+                // TODO: check if we should shrink
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void display(struct hash_tbl *table) {
