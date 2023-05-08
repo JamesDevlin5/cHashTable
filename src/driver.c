@@ -4,7 +4,7 @@
 #include "tbl.h"
 
 int main(void) {
-    struct hash_tbl *table = new ();
+    struct hash_tbl *table = new();
 
     /* --- Ensure the empty table doesn't fail any operations --- */
     assert(is_empty(table));

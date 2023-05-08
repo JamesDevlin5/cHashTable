@@ -55,7 +55,7 @@ void clear(struct hash_tbl *table) {
     // Free the table of buckets
     free(*table->buckets);
     // Just make a new table and take its contents
-    struct hash_tbl *new_tbl = new ();
+    struct hash_tbl *new_tbl = new();
     table->buckets = new_tbl->buckets;
     table->n_buckets = new_tbl->n_buckets;
     table->n_items = new_tbl->n_items;
