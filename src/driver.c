@@ -68,7 +68,13 @@ int main(void) {
     assert(!contains_item(table, "five", 1));
     assert(contains_item(table, "five", 5));
 
-    clear(table);
+    assert(rm(table, "five", 5));
+    assert(rm(table, "four", 4));
+    assert(!rm(table, "three", 2));
+    tbl_val *val = rm_key(table, "three");
+    assert(*val == 3);
+    free(val);
+    assert(rm(table, "two", -2));
     assert(is_empty(table));
 
     put(table, "test", 0);

@@ -106,11 +106,19 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
     }
 }
 
-tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    // Check if it's the first key
+static bool key_pred(tbl_key search_key, tbl_val search_val, tbl_key cmp_key, tbl_val cmp_val) {
+    return strcmp(search_key, cmp_key) == 0;
+}
+
+static bool item_pred(tbl_key search_key, tbl_val search_val, tbl_key cmp_key, tbl_val cmp_val) {
+    return strcmp(search_key, cmp_key) == 0 && search_val == cmp_val;
+}
+
+static tbl_val *remove(struct hash_tbl *table, tbl_key search_key, tbl_val search_val, bool (*pred)(tbl_key, tbl_val, tbl_key, tbl_val)) {
     if (is_empty(table)) {
         return NULL;
-    } else if (strcmp(table->head->key, key) == 0) {
+    } else if (pred(search_key, search_val, table->head->key, table->head->val)) {
+        // If it's the first key
         struct list_node *node = table->head;
         table->head = node->next;
         tbl_val *val = malloc(sizeof(tbl_val));
@@ -118,10 +126,11 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
         free_node(node);
         return val;
     } else {
+        // Search list (not the first item)
         struct list_node *prev = table->head;
         struct list_node *curr = prev->next;
         while (curr) {
-            if (strcmp(curr->key, key) == 0) {
+            if (pred(search_key, search_val, curr->key, curr->val)) {
                 prev->next = curr->next;
                 tbl_val *val = malloc(sizeof(tbl_val));
                 *val = curr->val;
@@ -136,7 +145,15 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
     return NULL;
 }
 
+tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
+    return remove(table, key, 0, key_pred);
+}
+
 bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    /* TODO */
+    tbl_val *lookup_val = remove(table, key, val, item_pred);
+    if (lookup_val) {
+        free(lookup_val);
+        return true;
+    }
     return false;
 }
