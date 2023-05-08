@@ -106,19 +106,28 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
     }
 }
 
+/*
+ * Checks if only the keys are identical
+ */
 static bool key_pred(tbl_key search_key, tbl_val search_val,
                      tbl_key cmp_key, tbl_val cmp_val) {
     return strcmp(search_key, cmp_key) == 0;
 }
 
+/*
+ * Checks if both the key and value are identical
+ */
 static bool item_pred(tbl_key search_key, tbl_val search_val,
                       tbl_key cmp_key, tbl_val cmp_val) {
     return strcmp(search_key, cmp_key) == 0 && search_val == cmp_val;
 }
 
-static tbl_val *remove(struct hash_tbl *table,
-                       tbl_key search_key, tbl_val search_val,
-                       bool (*pred)(tbl_key, tbl_val, tbl_key, tbl_val)) {
+/*
+ * Searches the list and removes the first item that the predicate function returns true for
+ */
+static tbl_val *rm_pred(struct hash_tbl *table,
+                        tbl_key search_key, tbl_val search_val,
+                        bool (*pred)(tbl_key, tbl_val, tbl_key, tbl_val)) {
     if (is_empty(table)) {
         return NULL;
     } else if (pred(search_key, search_val, table->head->key,
@@ -151,14 +160,26 @@ static tbl_val *remove(struct hash_tbl *table,
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    return remove(table, key, 0, key_pred);
+    return rm_pred(table, key, 0, key_pred);
 }
 
 bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    tbl_val *lookup_val = remove(table, key, val, item_pred);
+    tbl_val *lookup_val = rm_pred(table, key, val, item_pred);
     if (lookup_val) {
         free(lookup_val);
         return true;
     }
     return false;
+}
+
+void display(struct hash_tbl *table) {
+    printf("  > %d items\n", size(table));
+    int i = 1;
+    struct list_node *curr = table->head;
+    while (curr) {
+        printf("%2d: \t%s  = %d\n", i, curr->key, curr->val);
+        curr = curr->next;
+        i += 1;
+    }
+    printf("\n");
 }

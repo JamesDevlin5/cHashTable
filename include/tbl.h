@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>  // for `display` printing
 #include <stdlib.h>
 #include <string.h>
 
@@ -71,5 +72,10 @@ tbl_val *rm_key(struct hash_tbl *, tbl_key key);
  * table
  */
 bool rm(struct hash_tbl *, tbl_key key, tbl_val val);
+
+/*
+ * Prints a visual representation of the table to standard out
+ */
+void display(struct hash_tbl *);
 
 #endif

@@ -42,6 +42,7 @@ int main(void) {
 
     put(table, "one", 3);
     put(table, "two", -2);
+    display(table);
 
     assert(contains_item(table, "one", 3));
     assert(!contains_item(table, "one", 1));
@@ -80,8 +81,10 @@ int main(void) {
     put(table, "test", 0);
     put(table, "test2", -1);
     assert(!is_empty(table));
+    // display(table);
     clear(table);
     assert(is_empty(table));
+    // display(table);
     free(table);
 
     printf("Tests Passed!\n");
