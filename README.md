@@ -12,8 +12,9 @@ The hash table is represented as a single pointer to the first element. Every
 element then contains a pointer to the next element. The last item is indicated
 by a pointer to `null`.
 
-Insertion is very quick, the item is pre-pended to the list. All searches must
-occur in linear time, so these are generally slow.
+Insertion is *not* very quick; the item is pre-pended to the list but the list is first
+searched to see if the key is already present. All searches must occur in linear time,
+so these are generally slow.
 
 ## TODO
 
