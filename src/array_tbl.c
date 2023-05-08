@@ -55,7 +55,7 @@ void clear(struct hash_tbl *table) {
     // Free the table of buckets
     free(*table->buckets);
     // Just make a new table and take its contents
-    struct hash_tbl *new_tbl = new();
+    struct hash_tbl *new_tbl = new ();
     table->buckets = new_tbl->buckets;
     table->n_buckets = new_tbl->n_buckets;
     table->n_items = new_tbl->n_items;
@@ -72,7 +72,13 @@ bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
 }
 
 static size_t hash(tbl_key key) {
-    return 1;
+    size_t counter = 1;
+    char *c = key;
+    while (*c) {
+        counter += *c;
+        c += 1;
+    }
+    return counter;
 }
 
 tbl_val *get(struct hash_tbl *table, tbl_key key) {
