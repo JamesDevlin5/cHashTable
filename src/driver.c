@@ -48,8 +48,8 @@ int main(void) {
 
     // assert(rm(table, "one", 1));
     // assert(*rm_key(table, "one") == 1);
-    assert(rm_key(table, "one") != NULL);
-    assert(rm_key(table, "one") == NULL);
+    assert(rm_key(table, "one"));
+    assert(!rm_key(table, "one"));
     assert(size(table) == 4);
 
     assert(!contains_item(table, "one", 1));

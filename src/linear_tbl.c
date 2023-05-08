@@ -9,6 +9,14 @@ struct list_node {
     struct list_node *next;
 };
 
+/*
+ * Frees the node and it's contents (but not the next node)
+ */
+static void free_node(struct list_node *node) {
+    free(node->key);
+    free(node);
+}
+
 struct hash_tbl {
     struct list_node *head;
 };
@@ -36,12 +44,10 @@ int size(struct hash_tbl *table) {
 void clear(struct hash_tbl *table) {
     struct list_node *curr = table->head;
     struct list_node *next = NULL;
+    table->head = NULL;
     while (curr) {
         next = curr->next;
-        free(curr->key);
-        // NOTE: mapping's value is not freed
-        // free(curr->val);
-        free(curr);
+        free_node(curr);
         curr = next;
     }
 }
@@ -82,16 +88,45 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
  * Places new nodes at the beginning of the list
  */
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
+    // tbl_val *lookup_val = get(table, )
     // TODO: check to see if the key is already in the table?
     struct list_node *node = malloc(sizeof(struct list_node));
-    node->key = key;
+    /* Creates a copy of the key to store */
+    tbl_key new_key = malloc(sizeof(char) * (strlen(key) + 1));
+    strcpy(new_key, key);
+    node->key = new_key;
     node->val = val;
     node->next = table->head;
     table->head = node;
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    /* TODO */
+    // Check if it's the first key
+    if (is_empty(table)) {
+        return NULL;
+    } else if (strcmp(table->head->key, key) == 0) {
+        struct list_node *node = table->head;
+        table->head = node->next;
+        tbl_val *val = malloc(sizeof(tbl_val));
+        *val = node->val;
+        free_node(node);
+        return val;
+    } else {
+        struct list_node *prev = table->head;
+        struct list_node *curr = prev->next;
+        while (curr) {
+            if (strcmp(curr->key, key) == 0) {
+                prev->next = curr->next;
+                tbl_val *val = malloc(sizeof(tbl_val));
+                *val = curr->val;
+                free_node(curr);
+                return val;
+            } else {
+                prev = curr;
+                curr = curr->next;
+            }
+        }
+    }
     return NULL;
 }
 
