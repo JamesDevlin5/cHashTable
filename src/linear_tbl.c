@@ -1,4 +1,5 @@
 #include "tbl.h"
+#include "utils.h"
 
 /*
  * Each node contains a mapping and a link to the next node in the list
@@ -58,15 +59,11 @@ struct hash_tbl *clone(struct hash_tbl *source) {
 } */
 
 bool contains_key(struct hash_tbl *table, tbl_key key) {
-    return get(table, key) != NULL;
+    return std_contains_key(table, key);
 }
 
 bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    tbl_val *item_val = get(table, key);
-    if (item_val) {
-        return *item_val == val;
-    }
-    return false;
+    return std_contains_item(table, key, val);
 }
 
 /*
