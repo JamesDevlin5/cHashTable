@@ -42,6 +42,60 @@ int main(void) {
 
     put(table, "one", 3);
     put(table, "two", -2);
+
+    put(table, "a", 'a');
+    put(table, "b", 'b');
+    put(table, "c", 'c');
+    put(table, "d", 'd');
+    put(table, "e", 'e');
+    put(table, "f", 'f');
+    put(table, "g", 'g');
+    put(table, "h", 'h');
+    put(table, "i", 'i');
+    put(table, "j", 'j');
+    put(table, "k", 'k');
+    put(table, "l", 'l');
+    put(table, "m", 'm');
+    put(table, "n", 'n');
+    put(table, "o", 'o');
+    put(table, "p", 'p');
+    put(table, "q", 'q');
+    put(table, "r", 'r');
+    put(table, "s", 's');
+    put(table, "t", 't');
+    put(table, "u", 'u');
+    put(table, "v", 'v');
+    put(table, "w", 'w');
+    put(table, "x", 'x');
+    put(table, "y", 'y');
+    put(table, "z", 'z');
+    put(table, "A", 'A');
+    put(table, "B", 'B');
+    put(table, "C", 'C');
+    put(table, "D", 'D');
+    put(table, "E", 'E');
+    put(table, "F", 'F');
+    put(table, "G", 'G');
+    put(table, "H", 'H');
+    put(table, "I", 'I');
+    put(table, "J", 'J');
+    put(table, "K", 'K');
+    put(table, "L", 'L');
+    put(table, "M", 'M');
+    put(table, "N", 'N');
+    put(table, "O", 'O');
+    put(table, "P", 'P');
+    put(table, "Q", 'Q');
+    put(table, "R", 'R');
+    put(table, "S", 'S');
+    put(table, "T", 'T');
+    put(table, "U", 'U');
+    put(table, "V", 'V');
+    put(table, "W", 'W');
+    put(table, "X", 'X');
+    put(table, "Y", 'Y');
+    put(table, "Z", 'Z');
+
     display(table);
 
     assert(contains_item(table, "one", 3));
@@ -59,7 +113,7 @@ int main(void) {
     // assert(*rm_key(table, "one") == 1);
     assert(rm_key(table, "one"));
     assert(!rm_key(table, "one"));
-    assert(size(table) == 4);
+    assert(size(table) == 56);
 
     assert(!contains_item(table, "one", 1));
     assert(!contains_item(table, "two", 1));
@@ -76,6 +130,7 @@ int main(void) {
     assert(*val == 3);
     free(val);
     assert(rm(table, "two", -2));
+    clear(table);
     assert(is_empty(table));
 
     put(table, "test", 0);
