@@ -71,12 +71,48 @@ bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
     return std_contains_item(table, key, val);
 }
 
+static size_t hash(tbl_key key) {
+    return 1;
+}
+
 tbl_val *get(struct hash_tbl *table, tbl_key key) {
-    // TODO
+    size_t start_idx = hash(key);
+    for (size_t idx = start_idx; idx < start_idx + table->n_buckets; idx++) {
+        size_t curr_idx = idx % table->n_buckets;
+        struct bucket *curr_bucket = (*table->buckets)[curr_idx];
+        if (curr_bucket) {
+            if (strcmp(curr_bucket->key, key) == 0) {
+                // Found the key
+                return &curr_bucket->val;
+            }
+        }
+    }
+    return NULL;
 }
 
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    // TODO
+    // Check if key already present
+    tbl_val *lookup_val = get(table, key);
+    if (lookup_val) {
+        *lookup_val = val;
+    } else {
+        // Create new bucket
+        struct bucket *new_bucket = malloc(sizeof(struct bucket));
+        new_bucket->key = malloc(sizeof(char) * (strlen(key) + 1));
+        strcpy(new_bucket->key, key);
+        new_bucket->val = val;
+        size_t start_idx = hash(key);
+        for (size_t idx = start_idx; idx < start_idx + table->n_buckets; idx++) {
+            size_t curr_idx = idx % table->n_buckets;
+            // Check if null
+            if (!(*table->buckets)[curr_idx]) {
+                (*table->buckets)[curr_idx] = new_bucket;
+                table->n_items += 1;
+                // Exit loop
+                return;
+            }
+        }
+    }
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
