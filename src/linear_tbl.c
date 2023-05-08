@@ -31,8 +31,8 @@ bool is_empty(struct hash_tbl *table) {
     return table->head == NULL;
 }
 
-int size(struct hash_tbl *table) {
-    int count = 0;
+size_t size(struct hash_tbl *table) {
+    size_t count = 0;
     struct list_node *node = table->head;
     while (node) {
         count += 1;
@@ -173,7 +173,7 @@ bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
 }
 
 void display(struct hash_tbl *table) {
-    printf("  > %d items\n", size(table));
+    printf("  > %ld items\n", size(table));
     int i = 1;
     struct list_node *curr = table->head;
     while (curr) {

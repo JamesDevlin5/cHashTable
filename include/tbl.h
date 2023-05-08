@@ -29,7 +29,7 @@ bool is_empty(struct hash_tbl *);
 /*
  * Gets the number of elements in the table
  */
-int size(struct hash_tbl *);
+size_t size(struct hash_tbl *);
 /*
  * Removes all elements from the table
  */
