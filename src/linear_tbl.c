@@ -66,13 +66,17 @@ bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
     return std_contains_item(table, key, val);
 }
 
+static bool same_key(tbl_key key1, tbl_key key2) {
+    return strcmp(key1, key2) == 0;
+}
+
 /*
  * Performs a linear search, checking each element one-by-one
  */
 tbl_val *get(struct hash_tbl *table, tbl_key key) {
     struct list_node *node = table->head;
     while (node) {
-        if (strcmp(node->key, key) == 0) {
+        if (same_key(node->key, key)) {
             return &node->val;
         } else {
             node = node->next;
@@ -108,7 +112,7 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
  */
 static bool key_pred(tbl_key search_key, tbl_val search_val,
                      tbl_key cmp_key, tbl_val cmp_val) {
-    return strcmp(search_key, cmp_key) == 0;
+    return same_key(search_key, cmp_key);
 }
 
 /*
@@ -116,7 +120,7 @@ static bool key_pred(tbl_key search_key, tbl_val search_val,
  */
 static bool item_pred(tbl_key search_key, tbl_val search_val,
                       tbl_key cmp_key, tbl_val cmp_val) {
-    return strcmp(search_key, cmp_key) == 0 && search_val == cmp_val;
+    return same_key(search_key, cmp_key) && search_val == cmp_val;
 }
 
 /*
