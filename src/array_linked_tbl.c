@@ -74,7 +74,7 @@ bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
 }
 
 static struct list_node *get_bucket(struct hash_tbl *table, tbl_key key) {
-    size_t idx = hash(key);
+    size_t idx = hash(key) % table->n_buckets;
     return (*table->buckets)[idx];
 }
 
@@ -96,9 +96,8 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
         // key already in table
         *lookup_val = val;
     } else {
-        size_t idx = hash(key);
+        size_t idx = hash(key) % table->n_buckets;
         struct list_node *node = malloc(sizeof(struct list_node));
-        // TODO: make copy of the key
         node->key = malloc(sizeof(char) * (strlen(key) + 1));
         strcpy(node->key, key);
         node->val = val;
@@ -110,7 +109,7 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    size_t idx = hash(key);
+    size_t idx = hash(key) % table->n_buckets;
     struct list_node *curr = (*table->buckets)[idx];
     if (!curr) {
         // Bucket is empty
@@ -122,6 +121,8 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
         struct list_node *tmp = curr->next;
         free_node(curr);
         (*table->buckets)[idx] = tmp;
+        table->n_items -= 1;
+        // TODO: check if we should shrink
         return lookup_val;
     } else {
         // Check if body has key
@@ -133,7 +134,11 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
                 *lookup_val = curr->val;
                 prev->next = curr->next;
                 free_node(curr);
+                table->n_items -= 1;
                 return lookup_val;
+            } else {
+                prev = curr;
+                curr = curr->next;
             }
         }
     }
@@ -141,7 +146,7 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
 }
 
 bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    size_t idx = hash(key);
+    size_t idx = hash(key) % table->n_buckets;
     struct list_node *curr = (*table->buckets)[idx];
     if (!curr) {
         // Bucket is empty
@@ -151,6 +156,7 @@ bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
         struct list_node *tmp = curr->next;
         free_node(curr);
         (*table->buckets)[idx] = tmp;
+        table->n_items -= 1;
         return true;
     } else {
         // Check if body has key
@@ -160,6 +166,7 @@ bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
             if (strcmp(curr->key, key) == 0 && curr->val == val) {
                 prev->next = curr->next;
                 free_node(curr);
+                table->n_items -= 1;
                 return true;
             } else {
                 curr = curr->next;
@@ -179,6 +186,7 @@ void display(struct hash_tbl *table) {
             struct list_node *curr = bucket->next;
             while (curr) {
                 printf(",\t%s  =  %d", curr->key, curr->val);
+                curr = curr->next;
             }
             printf("\n");
         } else {
