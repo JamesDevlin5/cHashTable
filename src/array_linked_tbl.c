@@ -3,7 +3,7 @@
 
 static const size_t INIT_SIZE = 16;
 static const float GROW_AMT = 0.75f;
-static const float SHRINK_AMT = 1 - GROW_AMT;
+static const float SHRINK_AMT = 0.3f;
 
 /*
  * Linked-list node containing the key-value pairing and a ptr to the next item
@@ -40,15 +40,73 @@ static void free_list(struct list_node *list) {
     }
 }
 
-struct hash_tbl *new(void) {
+/*
+ * Creates an empty table with the specified number of buckets
+ */
+static struct hash_tbl *with_size(size_t n_buckets) {
     struct hash_tbl *table = malloc(sizeof(struct hash_tbl));
-    table->buckets = malloc(sizeof(struct list_node *) * INIT_SIZE);
-    for (size_t i = 0; i < INIT_SIZE; i++) {
+    table->buckets = malloc(sizeof(struct list_node *) * n_buckets);
+    for (size_t i = 0; i < n_buckets; i++) {
         (*table->buckets)[i] = NULL;
     }
-    table->n_buckets = INIT_SIZE;
+    table->n_buckets = n_buckets;
     table->n_items = 0;
     return table;
+}
+
+struct hash_tbl *new(void) {
+    return with_size(INIT_SIZE);
+}
+
+/*
+ * Resizes the table, to be a greater/smaller number of buckets
+ */
+static void resize(struct hash_tbl *table, size_t n_buckets) {
+    // New (differently sized) table
+    struct hash_tbl *new_table = with_size(n_buckets);
+    // Copy old elements
+    // if (!is_empty(table))
+    for (size_t i = 0; i < table->n_buckets; i++) {
+        struct list_node *bucket = (*table->buckets)[i];
+        struct list_node *tmp;
+        while (bucket) {
+            put(new_table, bucket->key, bucket->val);
+            tmp = bucket->next;
+            free_node(bucket);
+            bucket = tmp;
+        }
+    }
+    free(table->buckets);
+    table->buckets = new_table->buckets;
+    table->n_buckets = new_table->n_buckets;
+    table->n_items = new_table->n_items;
+    free(new_table);
+}
+
+/*
+ * Checks if the table has reached the threshold to grow in size,
+ * and executes the resize operation if it is deemed necessary.
+ */
+static void maybe_grow(struct hash_tbl *table) {
+    if ((table->n_items / (float)table->n_buckets) >= GROW_AMT) {
+        resize(table, table->n_buckets * 2);
+    }
+}
+
+/*
+ * Checks if the table has reached the threshold to shrink in size,
+ * and executes the resize operation if it is deemed necessary.
+ */
+static void maybe_shrink(struct hash_tbl *table) {
+    if ((table->n_items / (float)table->n_buckets) <= SHRINK_AMT) {
+        if (table->n_items == 0) {
+            // Special case if 0 items: rezise to initial size
+            resize(table, INIT_SIZE);
+        } else {
+            // Otherwise, shrink by half
+            resize(table, table->n_buckets / 2);
+        }
+    }
 }
 
 bool is_empty(struct hash_tbl *table) { return size(table) == 0; }
@@ -62,8 +120,7 @@ void clear(struct hash_tbl *table) {
         (*table->buckets)[i] = NULL;
     }
     table->n_items = 0;
-    // free(table->buckets);
-    // TODO: shrink to orig size?
+    maybe_shrink(table);
 }
 
 bool contains_key(struct hash_tbl *table, tbl_key key) {
@@ -89,33 +146,6 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
         }
     }
     return NULL;
-}
-
-/*
- * Resizes the table, to be a greater/smaller number of buckets
- */
-static void resize(struct hash_tbl *table, size_t n_buckets) {
-    /* TODO */
-}
-
-/*
- * Checks if the table has reached the threshold to grow in size,
- * and executes the resize operation if it is deemed necessary.
- */
-static void maybe_grow(struct hash_tbl *table) {
-    if ((table->n_items / (float) table->n_buckets) >= GROW_AMT) {
-        resize(table, table->n_buckets * 2);
-    }
-}
-
-/*
- * Checks if the table has reached the threshold to shrink in size,
- * and executes the resize operation if it is deemed necessary.
- */
-static void maybe_shrink(struct hash_tbl *table) {
-    if ((table->n_items / (float) table->n_buckets) <= SHRINK_AMT) {
-        resize(table, table->n_buckets / 2);
-    }
 }
 
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
