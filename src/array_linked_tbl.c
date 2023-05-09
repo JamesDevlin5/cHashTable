@@ -65,15 +65,16 @@ static void resize(struct hash_tbl *table, size_t n_buckets) {
     // New (differently sized) table
     struct hash_tbl *new_table = with_size(n_buckets);
     // Copy old elements
-    // if (!is_empty(table))
-    for (size_t i = 0; i < table->n_buckets; i++) {
-        struct list_node *bucket = (*table->buckets)[i];
-        struct list_node *tmp;
-        while (bucket) {
-            put(new_table, bucket->key, bucket->val);
-            tmp = bucket->next;
-            free_node(bucket);
-            bucket = tmp;
+    if (!is_empty(table)) {
+        for (size_t i = 0; i < table->n_buckets; i++) {
+            struct list_node *bucket = (*table->buckets)[i];
+            struct list_node *tmp;
+            while (bucket) {
+                put(new_table, bucket->key, bucket->val);
+                tmp = bucket->next;
+                free_node(bucket);
+                bucket = tmp;
+            }
         }
     }
     free(table->buckets);
