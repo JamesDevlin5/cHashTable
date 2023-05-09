@@ -2,7 +2,7 @@
 #include "utils.h"
 
 static const size_t INIT_SIZE = 2;
-static const float LOAD_AMT = 0.75f;
+static const float GROW_AMT = 0.75f;
 
 struct bucket {
     tbl_key key;
@@ -88,7 +88,7 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
 }
 
 static bool should_grow(struct hash_tbl *table) {
-    return (table->n_items / (float)table->n_buckets) >= LOAD_AMT;
+    return (table->n_items / (float)table->n_buckets) >= GROW_AMT;
 }
 
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {

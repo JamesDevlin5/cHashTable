@@ -1,8 +1,9 @@
 #include "tbl.h"
 #include "utils.h"
 
-static const size_t INIT_SIZE = 2;
-static const float LOAD_AMT = 0.75f;
+static const size_t INIT_SIZE = 16;
+static const float GROW_AMT = 0.75f;
+static const float SHRINK_AMT = 1 - GROW_AMT;
 
 /*
  * Linked-list node containing the key-value pairing and a ptr to the next item
@@ -90,6 +91,29 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
     return NULL;
 }
 
+/*
+ * Resizes the table, to be a greater/smaller number of buckets
+ */
+static void resize(size_t n_buckets) {
+    /* TODO */
+}
+
+/*
+ * Checks if the table has reached the threshold to grow in size,
+ * and executes the resize operation if it is deemed necessary.
+ */
+static void maybe_grow(struct hash_tbl *table) {
+    /* TODO */
+}
+
+/*
+ * Checks if the table has reached the threshold to shrink in size,
+ * and executes the resize operation if it is deemed necessary.
+ */
+static void maybe_shrink(struct hash_tbl *table) {
+    /* TODO */
+}
+
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
     tbl_val *lookup_val = get(table, key);
     if (lookup_val) {
@@ -105,6 +129,7 @@ void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
         node->next = (*table->buckets)[idx];
         (*table->buckets)[idx] = node;
         table->n_items += 1;
+        maybe_grow(table);
     }
 }
 
@@ -122,7 +147,8 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
         free_node(curr);
         (*table->buckets)[idx] = tmp;
         table->n_items -= 1;
-        // TODO: check if we should shrink
+        // check if we should shrink
+        maybe_shrink(table);
         return lookup_val;
     } else {
         // Check if body has key
@@ -135,6 +161,8 @@ tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
                 prev->next = curr->next;
                 free_node(curr);
                 table->n_items -= 1;
+                // check if we should shrink
+                maybe_shrink(table);
                 return lookup_val;
             } else {
                 prev = curr;
@@ -157,6 +185,8 @@ bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
         free_node(curr);
         (*table->buckets)[idx] = tmp;
         table->n_items -= 1;
+        // check if we should shrink
+        maybe_shrink(table);
         return true;
     } else {
         // Check if body has key
@@ -167,6 +197,8 @@ bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
                 prev->next = curr->next;
                 free_node(curr);
                 table->n_items -= 1;
+                // check if we should shrink
+                maybe_shrink(table);
                 return true;
             } else {
                 curr = curr->next;
