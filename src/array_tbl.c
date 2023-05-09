@@ -44,7 +44,7 @@ size_t size(struct hash_tbl *table) {
 }
 
 void clear(struct hash_tbl *table) {
-    // if (table->n_items == 0) return;
+    if (is_empty(table)) return;
     // Free all individual buckets
     for (size_t i = 0; i < table->n_buckets; i++) {
         struct bucket *bucket = (*table->buckets)[i];
@@ -70,16 +70,6 @@ bool contains_key(struct hash_tbl *table, tbl_key key) {
 
 bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
     return std_contains_item(table, key, val);
-}
-
-static size_t hash(tbl_key key) {
-    size_t counter = 1;
-    char *c = key;
-    while (*c) {
-        counter += *c;
-        c += 1;
-    }
-    return counter;
 }
 
 tbl_val *get(struct hash_tbl *table, tbl_key key) {

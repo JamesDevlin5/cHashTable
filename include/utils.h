@@ -15,4 +15,9 @@ bool std_contains_key(struct hash_tbl *, tbl_key key);
  */
 bool std_contains_item(struct hash_tbl *, tbl_key key, tbl_val val);
 
+/*
+ * Calculate the numeric hash representation of the key
+ */
+size_t hash(tbl_key key);
+
 #endif

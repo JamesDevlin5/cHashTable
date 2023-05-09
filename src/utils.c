@@ -11,3 +11,13 @@ bool std_contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
     }
     return false;
 }
+
+size_t hash(tbl_key key) {
+    size_t counter = 1;
+    char *c = key;
+    while (*c) {
+        counter += *c;
+        c += 1;
+    }
+    return counter;
+}
