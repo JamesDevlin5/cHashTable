@@ -94,7 +94,7 @@ tbl_val *get(struct hash_tbl *table, tbl_key key) {
 /*
  * Resizes the table, to be a greater/smaller number of buckets
  */
-static void resize(size_t n_buckets) {
+static void resize(struct hash_tbl *table, size_t n_buckets) {
     /* TODO */
 }
 
@@ -103,7 +103,9 @@ static void resize(size_t n_buckets) {
  * and executes the resize operation if it is deemed necessary.
  */
 static void maybe_grow(struct hash_tbl *table) {
-    /* TODO */
+    if ((table->n_items / (float) table->n_buckets) >= GROW_AMT) {
+        resize(table, table->n_buckets * 2);
+    }
 }
 
 /*
@@ -111,7 +113,9 @@ static void maybe_grow(struct hash_tbl *table) {
  * and executes the resize operation if it is deemed necessary.
  */
 static void maybe_shrink(struct hash_tbl *table) {
-    /* TODO */
+    if ((table->n_items / (float) table->n_buckets) <= SHRINK_AMT) {
+        resize(table, table->n_buckets / 2);
+    }
 }
 
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
