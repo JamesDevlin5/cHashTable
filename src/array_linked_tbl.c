@@ -50,19 +50,17 @@ struct hash_tbl *new(void) {
     return table;
 }
 
-bool is_empty(struct hash_tbl *table) {
-    return size(table) == 0;
-}
+bool is_empty(struct hash_tbl *table) { return size(table) == 0; }
 
-size_t size(struct hash_tbl *table) {
-    return table->n_items;
-}
+size_t size(struct hash_tbl *table) { return table->n_items; }
 
 void clear(struct hash_tbl *table) {
     if (is_empty(table)) return;
     for (size_t i = 0; i < table->n_buckets; i++) {
         free_list((*table->buckets)[i]);
+        (*table->buckets)[i] = NULL;
     }
+    table->n_items = 0;
     // free(table->buckets);
     // TODO: shrink to orig size?
 }
@@ -75,22 +73,99 @@ bool contains_item(struct hash_tbl *table, tbl_key key, tbl_val val) {
     return std_contains_item(table, key, val);
 }
 
+static struct list_node *get_bucket(struct hash_tbl *table, tbl_key key) {
+    size_t idx = hash(key);
+    return (*table->buckets)[idx];
+}
+
 tbl_val *get(struct hash_tbl *table, tbl_key key) {
-    /* TODO */
+    struct list_node *node = get_bucket(table, key);
+    while (node) {
+        if (strcmp(node->key, key) == 0) {
+            return &node->val;
+        } else {
+            node = node->next;
+        }
+    }
     return NULL;
 }
 
 void put(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    /* TODO */
+    tbl_val *lookup_val = get(table, key);
+    if (lookup_val) {
+        // key already in table
+        *lookup_val = val;
+    } else {
+        size_t idx = hash(key);
+        struct list_node *node = malloc(sizeof(struct list_node));
+        // TODO: make copy of the key
+        node->key = malloc(sizeof(char) * (strlen(key) + 1));
+        strcpy(node->key, key);
+        node->val = val;
+        // prepend new node
+        node->next = (*table->buckets)[idx];
+        (*table->buckets)[idx] = node;
+        table->n_items += 1;
+    }
 }
 
 tbl_val *rm_key(struct hash_tbl *table, tbl_key key) {
-    /* TODO */
+    size_t idx = hash(key);
+    struct list_node *curr = (*table->buckets)[idx];
+    if (!curr) {
+        // Bucket is empty
+        return NULL;
+    } else if (strcmp(curr->key, key) == 0) {
+        // Head has key
+        tbl_val *lookup_val = malloc(sizeof(tbl_val));
+        *lookup_val = curr->val;
+        struct list_node *tmp = curr->next;
+        free_node(curr);
+        (*table->buckets)[idx] = tmp;
+        return lookup_val;
+    } else {
+        // Check if body has key
+        struct list_node *prev = curr;
+        curr = curr->next;
+        while (curr) {
+            if (strcmp(curr->key, key) == 0) {
+                tbl_val *lookup_val = malloc(sizeof(tbl_val));
+                *lookup_val = curr->val;
+                prev->next = curr->next;
+                free_node(curr);
+                return lookup_val;
+            }
+        }
+    }
     return NULL;
 }
 
 bool rm(struct hash_tbl *table, tbl_key key, tbl_val val) {
-    /* TODO */
+    size_t idx = hash(key);
+    struct list_node *curr = (*table->buckets)[idx];
+    if (!curr) {
+        // Bucket is empty
+        return false;
+    } else if (strcmp(curr->key, key) == 0 && curr->val == val) {
+        // Head has target
+        struct list_node *tmp = curr->next;
+        free_node(curr);
+        (*table->buckets)[idx] = tmp;
+        return true;
+    } else {
+        // Check if body has key
+        struct list_node *prev = curr;
+        curr = curr->next;
+        while (curr) {
+            if (strcmp(curr->key, key) == 0 && curr->val == val) {
+                prev->next = curr->next;
+                free_node(curr);
+                return true;
+            } else {
+                curr = curr->next;
+            }
+        }
+    }
     return false;
 }
 

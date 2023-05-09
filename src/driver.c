@@ -24,6 +24,7 @@ int main(void) {
     put(table, "three", 3);
     put(table, "four", 4);
     put(table, "five", 5);
+    display(table);
 
     /* --- Ensure behavior has changed --- */
     assert(contains_key(table, "one"));
